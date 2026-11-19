@@ -84,10 +84,11 @@ describe("RegisterPage", () => {
     expect(auth.register).toHaveBeenCalledWith({ email: "new@example.com", password: GOOD, display_name: "" });
   });
 
-  it("shows the Google button only when the backend says Google is configured", async () => {
+  it("offers no Google sign-up, even if the backend has Google configured", async () => {
     api.providers.mockResolvedValue({ google: true });
     show(<RegisterPage />);
-    expect(await screen.findByRole("button", { name: "Sign up with Google" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Create your account" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /google/i })).toBeNull();
   });
 });
 

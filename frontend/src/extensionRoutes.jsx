@@ -1,15 +1,14 @@
-// Routes for the two extension features, kept in one place so App.jsx only needs to spread them in.
+// Routes for the extension features, kept in one place so App.jsx only needs to spread them in.
 // Each group is empty when its feature flag is off (see features.js), and then those addresses simply get the public 404.
 import RequireLogin from "./auth/RequireLogin";
 import { FEATURES } from "./features";
+import { adminNewsRoutes, publicNewsRoutes } from "./features/news/routes";
 import MarketplaceReviewPage from "./pages/admin/MarketplaceReviewPage";
 import EditProjectPage from "./pages/marketplace/EditProjectPage";
 import MarketplacePage from "./pages/marketplace/MarketplacePage";
 import MyProjectsPage from "./pages/marketplace/MyProjectsPage";
 import ProjectDetailPage from "./pages/marketplace/ProjectDetailPage";
 import PurchasesPage from "./pages/marketplace/PurchasesPage";
-import VideoDownloaderPage from "./pages/video/VideoDownloaderPage";
-import { adminNewsRoutes, publicNewsRoutes } from "./features/news/routes";
 
 const signedIn = (element, message) => <RequireLogin message={message}>{element}</RequireLogin>;
 
@@ -25,7 +24,6 @@ export const publicExtensionRoutes = [
         { path: "/marketplace/purchases", element: signedIn(<PurchasesPage />, "Log in to see your purchases.") },
       ]
     : []),
-  ...(FEATURES.videoTools ? [{ path: "/video-tools", element: <VideoDownloaderPage /> }] : []),
   ...publicNewsRoutes, // News (empty unless VITE_FEATURE_NEWS=true)
 ];
 

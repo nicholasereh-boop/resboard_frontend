@@ -46,7 +46,7 @@ describe("sidebar menu (tablets and phones)", () => {
   it("lists every navigation link, with the current page marked", async () => {
     await mount();
     const nav = screen.getByRole("navigation", { name: "Main" });
-    expect([...nav.querySelectorAll("a")].map((a) => a.textContent)).toEqual(["Home", "Stories", "Categories", "Tags", "Marketplace", "Video tools"]);
+    expect([...nav.querySelectorAll("a")].map((a) => a.textContent)).toEqual(["Home", "Stories", "Categories", "Tags", "Marketplace", "Academy"]);
     expect(nav.querySelector("a[aria-current='page']").textContent).toBe("Home");
   });
 
@@ -135,10 +135,10 @@ describe("the stylesheet's breakpoints (jsdom cannot lay pages out, so the rules
     expect(mediaBlock("(min-width: 1025px)")).toContain(".home-latest .story-grid");
   });
 
-  it("turns the menu into a fixed right-hand sidebar that is unreachable while closed", () => {
+  it("turns the menu into a fixed left-hand sidebar that is unreachable while closed", () => {
     const small = mediaBlock("(max-width: 1024px)");
     expect(small).toMatch(/\.site-header \.menu-toggle \{ display: inline-flex; \}/);
-    expect(small).toMatch(/\.site-header \.site-menu \{[^}]*position: fixed;[^}]*right: 0;[^}]*transform: translateX\(105%\);[^}]*visibility: hidden;/s);
+    expect(small).toMatch(/\.site-header \.site-menu \{[^}]*position: fixed;[^}]*left: 0;[^}]*transform: translateX\(-105%\);[^}]*visibility: hidden;/s);
     expect(small).toMatch(/\.site-menu\.open \{[^}]*transform: none;[^}]*visibility: visible;/s);
   });
 

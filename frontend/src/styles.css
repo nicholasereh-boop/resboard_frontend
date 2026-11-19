@@ -581,11 +581,6 @@ pre { overflow-x: auto; }
   input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="datetime-local"], select, textarea { font-size: 16px; } /* stops iOS zooming in on focus */
 }
 
-
-
-
-
-
 /* password box with a show/hide eye button */
 .pw-wrap { position: relative; display: block; }
 .pw-wrap input { padding-right: 2.8rem; }

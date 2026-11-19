@@ -9,7 +9,7 @@ import QueryState from "../../components/public/QueryState";
 import { useDocumentMeta } from "../../hooks/useDocumentMeta";
 import "./marketplace.css";
 
-const blank = { title: "", summary: "", description: "", notes: "", technologies: "", youtube: "",  frontendVideo: "", backendVideo: "", frontendPrice: "0", backendPrice: "0", rights: false };
+const blank = { title: "", summary: "", description: "", notes: "", technologies: "", youtube: "", frontendVideo: "", backendVideo: "", frontendPrice: "0", backendPrice: "0", rights: false };
 
 function fromProject(p) {
   return {

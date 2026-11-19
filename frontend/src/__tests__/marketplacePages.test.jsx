@@ -79,7 +79,7 @@ describe("project page", () => {
     mp.getProject.mockResolvedValue(detail({ youtube_id: "dQw4w9WgXcQ" }));
     const { container, unmount } = renderAt("/marketplace/projects/shop-template");
     await screen.findByText("Full description of the shop.");
-    expect(container.querySelector("iframe").getAttribute("src")).toMatch(/^https:\/\/www\.youtube-nocookie\.com\/embed\/dQw4w9WgXcQ(\?enablejsapi=1.*)?$/); // jsApi lets the shared video coordinator watch it
+    expect(container.querySelector("iframe")).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ");
     unmount();
     mp.getProject.mockResolvedValue(detail({ youtube_id: '"><script>' }));
     const second = renderAt("/marketplace/projects/shop-template");

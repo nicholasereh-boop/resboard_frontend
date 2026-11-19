@@ -1,7 +1,6 @@
-import { createElement, useRef } from "react";
+import { createElement } from "react";
 import { isSafeHref } from "../utils/links";
 import { extractYoutubeId, youtubeEmbedUrl } from "../utils/youtube";
-import { useCoordinatedYoutubeIframe } from "../player/useCoordinatedYoutubePlayer";
 
 // Renders story JSON (the server schema) as React elements.
 //
@@ -11,16 +10,11 @@ import { useCoordinatedYoutubeIframe } from "../player/useCoordinatedYoutubePlay
 
 // A YouTube video on the reader's page. It starts playing by itself as soon as the page loads.
 // Muted on purpose: browsers block autoplay with sound, so the reader taps the speaker icon for audio.
-// The same iframe is also watched by the shared video coordinator, so starting any other ResourceBoard or Academy video pauses it.
 function YoutubeEmbed({ id }) {
-  const frame = useRef(null);
-  useCoordinatedYoutubeIframe(frame, { videoId: id, idPrefix: "story" });
   return (
     <div className="yt-embed">
       <iframe
-        key={id}
-        ref={frame}
-        src={youtubeEmbedUrl(id, { autoplay: true, jsApi: true })}
+        src={youtubeEmbedUrl(id, { autoplay: true })}
         title="YouTube video"
         allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen

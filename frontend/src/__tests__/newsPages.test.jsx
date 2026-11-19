@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../features/news/api/news", () => ({
   getNewsConfig: vi.fn(), listNewsArticles: vi.fn(), getNewsArticle: vi.fn(), listNewsCategories: vi.fn(), getNewsFeatured: vi.fn(),
   getNewsBreaking: vi.fn(), getNewsRelated: vi.fn(), countNewsView: vi.fn(), submitNewsComplaint: vi.fn(),
+  listNewsComments: vi.fn(), postNewsComment: vi.fn(), deleteNewsComment: vi.fn(),
 }));
 import * as api from "../features/news/api/news";
 import { buildPublicNewsRoutes } from "../features/news/routes";
@@ -31,6 +32,7 @@ beforeEach(() => {
   api.getNewsArticle.mockResolvedValue(detail());
   api.getNewsRelated.mockResolvedValue([card({ slug: "other", title: "Another story" })]);
   api.countNewsView.mockResolvedValue({ counted: true });
+  api.listNewsComments.mockResolvedValue(page([]));
 });
 
 describe("News home", () => {
@@ -92,7 +94,7 @@ describe("News article", () => {
     renderAt("/news/bridge-vote");
     expect(await screen.findByRole("heading", { name: "Council approves new bridge" })).toBeTruthy();
     expect(screen.getByText("The council voted on Tuesday.")).toBeTruthy();
-    expect(screen.getByText(/By Ada Obi/)).toBeTruthy();
+    expect(screen.getByText(/^By Ada Obi/)).toBeTruthy();
     expect(screen.getByText("Source: Daily Example. By Ada Obi.")).toBeTruthy();
     expect(screen.getByRole("link", { name: "Read the original article" }).getAttribute("href")).toBe("https://example.com/original");
     expect(screen.getByText("Licence: CC BY 4.0")).toBeTruthy();
@@ -114,6 +116,20 @@ describe("News article", () => {
     renderAt("/news/bridge-vote");
     expect(await screen.findByAltText("The bridge")).toBeTruthy();
     expect(screen.getByText("The old bridge · Photo: Bo · CC BY 4.0")).toBeTruthy();
+  });
+
+  it("shows the comments section only when the server has comments switched on", async () => {
+    renderAt("/news/bridge-vote");
+    await screen.findByRole("heading", { name: "Council approves new bridge" });
+    expect(screen.queryByRole("heading", { name: "Comments" })).toBeNull();
+    expect(api.listNewsComments).not.toHaveBeenCalled();
+  });
+
+  it("shows the comments section when comments are on", async () => {
+    api.getNewsConfig.mockResolvedValue({ copyright_contact: "", comments: true });
+    renderAt("/news/bridge-vote");
+    expect(await screen.findByRole("heading", { name: "Comments" })).toBeTruthy();
+    await waitFor(() => expect(api.listNewsComments).toHaveBeenCalledWith("bridge-vote", 1));
   });
 
   it("an unavailable article is a plain not-found page", async () => {

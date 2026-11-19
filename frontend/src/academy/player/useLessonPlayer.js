@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { loadYouTubeApi } from "./youtubeApi";
-import { coordinator } from "../../player/VideoPlaybackCoordinator";
 
 // Controls one lesson's YouTube player and reports progress to the server. The browser only REPORTS: it adds up the seconds the
 // video was really playing and sends position / watched / duration every `intervalSeconds`, on pause, at the end, and when the
@@ -17,8 +16,6 @@ export function useLessonPlayer({ videoId, startSeconds = 0, baselineWatched = 0
     if (!enabled || !videoId || !host.current) return undefined;
     let cancelled = false;
     let player = null;
-    let unregister = null; // stops the shared one-video-at-a-time coordinator from touching this player
-    const playerId = coordinator.createId("lesson");
     let tick = null;
     let watched = baselineWatched; // whole seconds the video has been playing, including earlier visits
     let sinceReport = 0;
@@ -55,16 +52,14 @@ export function useLessonPlayer({ videoId, startSeconds = 0, baselineWatched = 0
             onError: () => { if (!cancelled) setStatus("error"); },
             onStateChange: (e) => {
               const s = e.data;
-              if (s === YT.PlayerState.PLAYING) { coordinator.notifyPlaying(playerId); startTick(); }
+              if (s === YT.PlayerState.PLAYING) startTick();
               else {
                 stopTick();
-                if (s === YT.PlayerState.PAUSED || s === YT.PlayerState.ENDED) { coordinator.notifyStopped(playerId); send(); }
+                if (s === YT.PlayerState.PAUSED || s === YT.PlayerState.ENDED) send();
               }
             },
           },
         });
-        // Pausing here (when another video starts) fires a PAUSED event, so the watch time is still saved by send() above.
-        unregister = coordinator.register(playerId, { pause: () => { try { player?.pauseVideo?.(); } catch { /* player gone */ } } });
       })
       .catch(() => { if (!cancelled) setStatus("error"); });
 
@@ -74,7 +69,6 @@ export function useLessonPlayer({ videoId, startSeconds = 0, baselineWatched = 0
     return () => {
       cancelled = true;
       document.removeEventListener("visibilitychange", onHidden);
-      unregister?.();
       stopTick();
       if (player && watched > baselineWatched) send();
       try { player?.destroy?.(); } catch { /* already gone */ }

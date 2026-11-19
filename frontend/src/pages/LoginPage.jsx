@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import AuthCard from "../components/auth/AuthCard";
-import GoogleButton from "../components/auth/GoogleButton";
 import PasswordField from "../components/auth/PasswordField";
 import TextField from "../components/auth/TextField";
 import { useDocumentMeta } from "../hooks/useDocumentMeta";
@@ -23,7 +22,6 @@ export default function LoginPage() {
 
   const from = location.state?.from;
   const message = location.state?.message;
-  const googleFailed = params.get("error") === "google";
 
   // Already logged in (any account type): nothing to do here.
   if (ready && user) return <Navigate to={afterLoginPath(user, from)} replace />;
@@ -49,7 +47,6 @@ export default function LoginPage() {
       footer={<>New here? <Link to="/register" state={location.state}>Create an account</Link></>}
     >
       {message && !error && <div className="notice info" role="status">{message}</div>}
-      {googleFailed && !error && <div className="notice error" role="alert">Google sign-in did not complete. Please try again.</div>}
       {error && <div className="notice error" role="alert">{error}</div>}
       <form onSubmit={submit} noValidate>
         <TextField id="login-email" label="Email" type="email" autoComplete="email" required value={email} onChange={setEmail} />
@@ -59,7 +56,6 @@ export default function LoginPage() {
         </button>
       </form>
       <p className="small"><Link to="/forgot-password">Forgot your password?</Link></p>
-      <GoogleButton />
     </AuthCard>
   );
 }

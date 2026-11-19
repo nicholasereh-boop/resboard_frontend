@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getCategories, getStories, getTags } from "../../api/public";
 import Pagination from "../../components/Pagination";
 import QueryState from "../../components/public/QueryState";
+import StoryFlow from "../../components/public/StoryFlow";
 import StoryGrid, { StoryGridSkeleton } from "../../components/public/StoryGrid";
 import { usePublicMeta } from "../../hooks/usePublicMeta";
 
@@ -69,6 +70,8 @@ export default function StoriesPage() {
           </>
         )}
       </QueryState>
+
+      <StoryFlow exclude={(stories.data?.items || []).map((s) => s.id)} />
     </div>
   );
 }

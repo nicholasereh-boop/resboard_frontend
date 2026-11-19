@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import AuthCard from "../../components/auth/AuthCard";
-import GoogleButton from "../../components/auth/GoogleButton";
 import PasswordField from "../../components/auth/PasswordField";
 import TextField from "../../components/auth/TextField";
 import { useDocumentMeta } from "../../hooks/useDocumentMeta";
@@ -86,7 +85,6 @@ export default function RegisterPage() {
         <PasswordField id="reg-confirm" label="Confirm password" autoComplete="new-password" value={form.confirm} onChange={set("confirm")} error={errors.confirm} />
         <button className="btn block" disabled={busy}>{busy ? "Creating account…" : "Sign up"}</button>
       </form>
-      <GoogleButton label="Sign up with Google" />
     </AuthCard>
   );
 }

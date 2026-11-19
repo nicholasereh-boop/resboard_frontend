@@ -7,7 +7,7 @@ describe("News feature flag", () => {
     vi.resetModules();
     const f = await import("../features");
     expect(f.FEATURE_NEWS).toBe(false);
-    expect(f.FEATURES).toEqual({ marketplace: true, videoTools: true, academy: true });
+    expect(f.FEATURES).toEqual({ marketplace: true, academy: true });
     expect(f.EXTENSION_NAV_LINKS.some((l) => l.to === "/news")).toBe(false);
     expect(f.ADMIN_EXTENSION_LINKS.some((l) => l.to === "/admin/news")).toBe(false);
     const routes = await import("../features/news/routes");

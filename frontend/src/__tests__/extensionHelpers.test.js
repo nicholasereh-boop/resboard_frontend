@@ -68,15 +68,15 @@ describe("feature flags", () => {
   it("are on by default and off only when set to false", async () => {
     vi.resetModules();
     let f = await import("../features");
-    expect(f.FEATURES).toEqual({ marketplace: true, videoTools: true });
-    expect(f.EXTENSION_NAV_LINKS.map((l) => l.to)).toEqual(["/marketplace", "/video-tools"]);
+    expect(f.FEATURES).toEqual({ marketplace: true, academy: true });
+    expect(f.EXTENSION_NAV_LINKS.map((l) => l.to)).toEqual(["/marketplace", "/academy"]);
     expect(f.ADMIN_EXTENSION_LINKS).toHaveLength(1);
 
     vi.stubEnv("VITE_FEATURE_MARKETPLACE", "false");
-    vi.stubEnv("VITE_FEATURE_VIDEO_TOOLS", "FALSE");
+    vi.stubEnv("VITE_FEATURE_ACADEMY", "false");
     vi.resetModules();
     f = await import("../features");
-    expect(f.FEATURES).toEqual({ marketplace: false, videoTools: false });
+    expect(f.FEATURES).toEqual({ marketplace: false, academy: false });
     expect(f.EXTENSION_NAV_LINKS).toEqual([]);
     expect(f.ADMIN_EXTENSION_LINKS).toEqual([]);
 
@@ -88,7 +88,6 @@ describe("feature flags", () => {
 
   it("remove the routes when off, so those addresses fall through to the 404", async () => {
     vi.stubEnv("VITE_FEATURE_MARKETPLACE", "false");
-    vi.stubEnv("VITE_FEATURE_VIDEO_TOOLS", "false");
     vi.resetModules();
     const r = await import("../extensionRoutes");
     expect(r.publicExtensionRoutes).toEqual([]);

@@ -1,4 +1,4 @@
-// Shared setup for the marketplace and video-tools page tests: the REAL routes, the network replaced by mocks.
+// Shared setup for the marketplace page tests: the REAL routes, the network replaced by mocks.
 import { expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
