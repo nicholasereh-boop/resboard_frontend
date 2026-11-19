@@ -15,7 +15,7 @@ db.sqlite3
 !.env.example
 
 # Django user uploads and generated files
-media/
+/media/
 
 # React and Node.js
 node_modules/
