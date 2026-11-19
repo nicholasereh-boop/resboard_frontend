@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { SITE_NAME } from "../../config";
+import { FEATURE_TAGS } from "../../features";
 import { useConsent } from "../../privacy/ConsentContext";
 import AnalyticsToggle from "./AnalyticsToggle";
 
@@ -14,7 +15,7 @@ export default function Footer() {
         <nav aria-label="Footer">
           <Link to="/stories">Stories</Link>
           <Link to="/categories">Categories</Link>
-          <Link to="/tags">Tags</Link>
+          {FEATURE_TAGS && <Link to="/tags">Tags</Link>}
           <Link to="/privacy">Privacy</Link>
           {mode === "notice" ? (
             <AnalyticsToggle />

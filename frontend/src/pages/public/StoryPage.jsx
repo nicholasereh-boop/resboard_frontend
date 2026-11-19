@@ -17,6 +17,7 @@ import { useReadTrigger } from "../../engagement/useReadTrigger";
 import { usePublicMeta } from "../../hooks/usePublicMeta";
 import { fmtDate } from "../../utils/format";
 import { articleJsonLd } from "../../utils/seo";
+import { FEATURE_TAGS } from "../../features";
 import PublicNotFound from "./PublicNotFound";
 import "../../styles/story-page.css";
 
@@ -87,7 +88,7 @@ export default function StoryPage() {
             <StoryRenderer content={s.content_json} />
             {s.tags.length > 0 && (
               <ul className="chips" aria-label="Tags">
-                {s.tags.map((t) => <li key={t.slug}><Link className="chip" to={`/tags/${t.slug}`}>#{t.name}</Link></li>)}
+                {s.tags.map((t) => <li key={t.slug}>{FEATURE_TAGS ? <Link className="chip" to={`/tags/${t.slug}`}>#{t.name}</Link> : <span className="chip">#{t.name}</span>}</li>)}
               </ul>
             )}
             <LikeButton slug={s.slug} initialCount={s.like_count} />

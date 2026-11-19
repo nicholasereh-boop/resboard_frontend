@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { SITE_NAME } from "../../config";
 import SearchBar from "./SearchBar";
-import { EXTENSION_NAV_LINKS } from "../../features";
+import { EXTENSION_NAV_LINKS, FEATURE_TAGS } from "../../features";
 import UserMenu from "./UserMenu";
 import "../../styles/public-responsive.css";
 
@@ -10,7 +10,7 @@ const LINKS = [
   { to: "/", label: "Home", end: true },
   { to: "/stories", label: "Stories" },
   { to: "/categories", label: "Categories" },
-  { to: "/tags", label: "Tags" },
+  ...(FEATURE_TAGS ? [{ to: "/tags", label: "Tags" }] : []),
   ...EXTENSION_NAV_LINKS, // Marketplace (each only when its feature is on)
 ];
 

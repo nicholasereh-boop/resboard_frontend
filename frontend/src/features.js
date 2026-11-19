@@ -11,6 +11,8 @@ export const FEATURES = {
   academy: on(import.meta.env?.VITE_FEATURE_ACADEMY),
 };
 // Kept out of FEATURES on purpose so that object keeps its original shape.
+// Tags: on unless VITE_FEATURE_TAGS=false. When off, the Tags pages, nav links and tag links are hidden (the code stays).
+export const FEATURE_TAGS = on(import.meta.env?.VITE_FEATURE_TAGS);
 export const FEATURE_NEWS = optIn(import.meta.env?.VITE_FEATURE_NEWS);
 
 // Appended to the public header's navigation.

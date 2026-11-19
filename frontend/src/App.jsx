@@ -23,6 +23,7 @@ import SearchPage from "./pages/public/SearchPage";
 import StoriesPage from "./pages/public/StoriesPage";
 import StoryPage from "./pages/public/StoryPage";
 import { CategoriesPage, CategoryPage, TagPage, TagsPage } from "./pages/public/TermsPages";
+import { FEATURE_TAGS } from "./features";
 import { academyRoutes } from "./academy/routes";
 import { adminExtensionRoutes, publicExtensionRoutes } from "./extensionRoutes";
 
@@ -78,8 +79,7 @@ export const routes = [
           { path: "/stories/:slug", element: <StoryPage /> },
           { path: "/categories", element: <CategoriesPage /> },
           { path: "/categories/:slug", element: <CategoryPage /> },
-          { path: "/tags", element: <TagsPage /> },
-          { path: "/tags/:slug", element: <TagPage /> },
+          ...(FEATURE_TAGS ? [{ path: "/tags", element: <TagsPage /> }, { path: "/tags/:slug", element: <TagPage /> }] : []),
           { path: "/search", element: <SearchPage /> },
           { path: "/privacy", element: <PrivacyPage /> },
           { path: "/account", element: <AccountPage /> },
