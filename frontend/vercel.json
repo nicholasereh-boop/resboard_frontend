@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://resboard.up.railway.app/api/:path*" },
+    { "source": "/accounts/:path*", "destination": "https://resboard.up.railway.app/accounts/:path*" },
+    { "source": "/media/:path*", "destination": "https://resboard.up.railway.app/media/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
