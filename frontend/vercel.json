@@ -1,8 +1,8 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://resboard.up.railway.app/api/:path*" },
-    { "source": "/accounts/:path*", "destination": "https://resboard.up.railway.app/accounts/:path*" },
-    { "source": "/media/:path*", "destination": "https://resboard.up.railway.app/media/:path*" },
+    { "source": "/api/:path*", "destination": "https://resboardbackend-production-2fd4dde8.up.railway.app/api/:path*" },
+    { "source": "/accounts/:path*", "destination": "https://resboardbackend-production-2fd4dde8.up.railway.app/accounts/:path*" },
+    { "source": "/media/:path*", "destination": "https://resboardbackend-production-2fd4dde8.up.railway.app/media/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
