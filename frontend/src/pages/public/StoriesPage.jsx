@@ -60,7 +60,7 @@ export default function StoriesPage() {
       <QueryState
         query={stories}
         skeleton={<StoryGridSkeleton />}
-        isEmpty={(d) => d.items.length === 0}
+        isEmpty={(d) => !Array.isArray(d?.items) || d.items.length === 0}
         empty={<div className="empty">{filtered ? "No stories match these filters." : "No stories have been published yet."}</div>}
       >
         {(d) => (
