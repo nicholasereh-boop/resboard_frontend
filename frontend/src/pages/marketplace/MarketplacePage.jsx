@@ -75,7 +75,7 @@ export default function MarketplacePage() {
       <QueryState
         query={projects}
         skeleton={<p className="muted">Loading projects…</p>}
-        isEmpty={(d) => d.items.length === 0}
+        isEmpty={(d) => !Array.isArray(d?.items) || d.items.length === 0}
         empty={<div className="empty"><p>No projects match. Try clearing a filter, or be the first to <Link to="/marketplace/publish">share one</Link>.</p></div>}
       >
         {(data) => (
