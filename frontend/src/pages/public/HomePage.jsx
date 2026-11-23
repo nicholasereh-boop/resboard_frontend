@@ -13,7 +13,9 @@ import "../../styles/home-feed.css";
 // Every loaded page together, newest first, without the same story twice.
 function poolOf(pages) {
   const seen = new Set();
-  return pages.flatMap((p) => p.items).filter((s) => (seen.has(s.id) ? false : seen.add(s.id)));
+  return (Array.isArray(pages) ? pages : [])
+  .flatMap((p) => Array.isArray(p?.items) ? p.items : [])
+  .filter((s) => s && (seen.has(s.id) ? false : seen.add(s.id)));
 }
 
 export default function HomePage() {
@@ -42,7 +44,7 @@ export default function HomePage() {
       <QueryState
         query={stories}
         skeleton={<FeedSkeleton />}
-        isEmpty={(d) => (d.pages[0]?.items.length || 0) === 0}
+        isEmpty={(d) => !Array.isArray(d?.pages?.[0]?.items) || d.pages[0].items.length === 0}
         empty={<div className="hf"><div className="empty">No stories have been published yet. Please check back soon.</div></div>}
       >
         {(d) => (
