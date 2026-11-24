@@ -4,7 +4,7 @@ import { AD_CLIENT } from "./adConfig";
 // One Google AdSense display ad. The adsbygoogle.js script is loaded once in index.html.
 // Renders nothing until a real slot id (digits) is given, so empty boxes never show.
 // ADSENSE: reusable ad component, used on the home, stories, story detail and category pages
-export default function AdSlot({ slot, format = "auto", className = "" }) {
+export default function AdSlot({ slot, format = "auto", className = "", style }) {
   const pushed = useRef(false);
   const valid = /^\d+$/.test(String(slot || ""));
 
@@ -20,7 +20,7 @@ export default function AdSlot({ slot, format = "auto", className = "" }) {
 
   if (!valid) return null;
   return (
-    <aside className={`ad-slot ${className}`.trim()} aria-label="Advertisement" style={{ margin: "1.5rem 0", minHeight: 90, textAlign: "center" }}>
+    <aside className={`ad-slot ${className}`.trim()} aria-label="Advertisement" style={{ margin: "1.5rem 0", minHeight: 90, textAlign: "center", ...style }}>
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}

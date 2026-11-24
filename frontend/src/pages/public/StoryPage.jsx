@@ -20,6 +20,7 @@ import { articleJsonLd } from "../../utils/seo";
 import { FEATURE_TAGS } from "../../features";
 // ADSENSE: imports
 import AdSlot from "../../components/ads/AdSlot";
+import StorySideAds from "../../components/ads/StorySideAds";
 import { AD_SLOTS } from "../../components/ads/adConfig";
 import PublicNotFound from "./PublicNotFound";
 import "../../styles/story-page.css";
@@ -66,6 +67,9 @@ export default function StoryPage() {
   return (
     <div className="container">
       <StoryExtras />
+      {/* ADSENSE: two columns on desktop: the story and comments on the left, two sticky ad cards on the right */}
+      <div className="sp-layout">
+      <div className="sp-main">
       <QueryState query={query} skeleton={<StorySkeleton />} notFound={<PublicNotFound what="story" />}>
         {(s) => (
           <article className="story-page">
@@ -102,6 +106,9 @@ export default function StoryPage() {
         )}
       </QueryState>
       {story && <CommentSection slug={story.slug} count={story.comment_count} />}
+      </div>
+      {story && <StorySideAds />}
+      </div>
       {/* ADSENSE: story detail ad, between comments and related stories */}
       {story && <AdSlot slot={AD_SLOTS.storyBottom} />}
       {story && <RelatedStories slug={slug} />}

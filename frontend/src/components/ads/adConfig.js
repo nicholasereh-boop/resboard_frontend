@@ -8,7 +8,9 @@ export const AD_SLOTS = {
   homeBottom: "",      // home feed, above "Show me a new set of stories"
   stories: "",         // /stories, between the grid and the page numbers
   storyInline: "",     // story page, after the story text
-  storyBottom: "",     // story page, between comments and related stories
+  storyBottom: "",
+  storySideTop: "",    // story page, right-hand side, top card (desktop only)
+  storySideBottom: "", // story page, right-hand side, bottom card (desktop only)     // story page, between comments and related stories
   categories: "",      // /categories, under the list
   categoryStories: "", // /categories/:slug (and tags), between the grid and the page numbers
 };
