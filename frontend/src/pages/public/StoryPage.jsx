@@ -18,6 +18,9 @@ import { usePublicMeta } from "../../hooks/usePublicMeta";
 import { fmtDate } from "../../utils/format";
 import { articleJsonLd } from "../../utils/seo";
 import { FEATURE_TAGS } from "../../features";
+// ADSENSE: imports
+import AdSlot from "../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../components/ads/adConfig";
 import PublicNotFound from "./PublicNotFound";
 import "../../styles/story-page.css";
 
@@ -86,6 +89,8 @@ export default function StoryPage() {
               </figure>
             )}
             <StoryRenderer content={s.content_json} />
+            {/* ADSENSE: story detail ad, after the story text */}
+            <AdSlot slot={AD_SLOTS.storyInline} />
             {s.tags.length > 0 && (
               <ul className="chips" aria-label="Tags">
                 {s.tags.map((t) => <li key={t.slug}>{FEATURE_TAGS ? <Link className="chip" to={`/tags/${t.slug}`}>#{t.name}</Link> : <span className="chip">#{t.name}</span>}</li>)}
@@ -97,6 +102,8 @@ export default function StoryPage() {
         )}
       </QueryState>
       {story && <CommentSection slug={story.slug} count={story.comment_count} />}
+      {/* ADSENSE: story detail ad, between comments and related stories */}
+      {story && <AdSlot slot={AD_SLOTS.storyBottom} />}
       {story && <RelatedStories slug={slug} />}
       {story && <StoryFlow exclude={[story.id]} />}
       {story && <StoryMoreFeed excludeId={story.id} />}

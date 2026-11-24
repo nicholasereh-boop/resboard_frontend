@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { SITE_NAME } from "../../config";
 import { STORIES_PER_REFRESH, STREAM_STORIES, buildBatch, buildStream, takeCircular, timeAgo } from "../../utils/homeFeed";
 import { formatPrice } from "../../utils/money";
+// ADSENSE: imports
+import AdSlot from "../ads/AdSlot";
+import { AD_SLOTS } from "../ads/adConfig";
 
 const HERO_MS = 6000; // the big card changes to the next story every 6 seconds
 
@@ -233,10 +236,14 @@ export default function HomeFeed({ stories, products = [], categories = [], hasM
         {c && <StoryTile story={c} />}
         {d && <StoryTile story={d} />}
         <ProductsBox products={shownProducts} />
+        {/* ADSENSE: home ad, after the Source code box */}
+        {AD_SLOTS.home && <li className="hf-card hf-ad"><AdSlot slot={AD_SLOTS.home} /></li>}
         {stream.map((e) => (e.type === "product" ? <ProductTile key={e.key} project={e.project} /> : <StoryTile key={e.key} story={e.story} />))}
       </ul>
 
       {loadingMore && <p className="hf-note" role="status">Loading more stories…</p>}
+      {/* ADSENSE: home bottom ad, above "Show me a new set of stories" */}
+      <AdSlot slot={AD_SLOTS.homeBottom} />
       <div className="hf-more"><button type="button" className="hf-more-btn" onClick={refresh}>Show me a new set of stories</button></div>
     </div>
   );

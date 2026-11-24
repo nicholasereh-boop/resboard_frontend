@@ -5,6 +5,9 @@ import Pagination from "../../components/Pagination";
 import QueryState from "../../components/public/QueryState";
 import StoryGrid, { StoryGridSkeleton } from "../../components/public/StoryGrid";
 import { usePublicMeta } from "../../hooks/usePublicMeta";
+// ADSENSE: imports
+import AdSlot from "../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../components/ads/adConfig";
 import PublicNotFound from "./PublicNotFound";
 
 const prettify = (slug) => slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -20,15 +23,19 @@ export function CategoriesPage() {
       <h1>Categories</h1>
       <QueryState query={query} skeleton={<Skeleton />} isEmpty={(d) => d.length === 0} empty={<div className="empty">No categories yet.</div>}>
         {(items) => (
-          <ul className="term-grid">
-            {items.map((c) => (
-              <li key={c.slug} className="term-card">
-                <h2><Link to={`/categories/${c.slug}`}>{c.name}</Link></h2>
-                {c.description && <p>{c.description}</p>}
-                <p className="muted small">{countText(c.story_count)}</p>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="term-grid">
+              {items.map((c) => (
+                <li key={c.slug} className="term-card">
+                  <h2><Link to={`/categories/${c.slug}`}>{c.name}</Link></h2>
+                  {c.description && <p>{c.description}</p>}
+                  <p className="muted small">{countText(c.story_count)}</p>
+                </li>
+              ))}
+            </ul>
+            {/* ADSENSE: categories list ad, under the list */}
+            <AdSlot slot={AD_SLOTS.categories} />
+          </>
         )}
       </QueryState>
     </div>
@@ -64,6 +71,8 @@ function TermStories({ heading, description, count, query, onPage }) {
         {(d) => (
           <>
             <StoryGrid stories={d.items} headingLevel={2} />
+            {/* ADSENSE: category/tag stories ad, between the grid and the page numbers */}
+            <AdSlot slot={AD_SLOTS.categoryStories} />
             <Pagination pagination={d.pagination} onPage={onPage} />
           </>
         )}

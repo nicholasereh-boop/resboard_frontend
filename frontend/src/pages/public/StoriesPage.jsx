@@ -6,6 +6,9 @@ import QueryState from "../../components/public/QueryState";
 import StoryFlow from "../../components/public/StoryFlow";
 import StoryGrid, { StoryGridSkeleton } from "../../components/public/StoryGrid";
 import { usePublicMeta } from "../../hooks/usePublicMeta";
+// ADSENSE: imports
+import AdSlot from "../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../components/ads/adConfig";
 
 // All stories. Filters and the page number live in the URL (?category=&tag=&page=), so links and the back button work.
 export default function StoriesPage() {
@@ -66,6 +69,8 @@ export default function StoriesPage() {
         {(d) => (
           <>
             <StoryGrid stories={d.items} headingLevel={2} />
+            {/* ADSENSE: stories ad, between the grid and the page numbers */}
+            <AdSlot slot={AD_SLOTS.stories} />
             <Pagination pagination={d.pagination} onPage={(p) => { update({ page: p > 1 ? String(p) : "" }); window.scrollTo?.(0, 0); }} />
           </>
         )}
