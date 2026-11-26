@@ -37,6 +37,25 @@ describe("SearchBar", () => {
     expect(screen.getByRole("searchbox").value).toBe("lamp");
   });
 
+  it("searches the news when the visitor is in the news section", () => {
+    setup("/news");
+    expect(screen.getByRole("searchbox").getAttribute("placeholder")).toBe("Search news…");
+    expect(screen.getByLabelText("Search news")).toBeTruthy();
+    type("  weather ");
+    submit();
+    expect(screen.getByTestId("where").textContent).toBe("/news/search?q=weather");
+  });
+
+  it("shows the news query on the news results page and keeps the story search elsewhere", () => {
+    setup("/news/search?q=flood");
+    expect(screen.getByRole("searchbox").value).toBe("flood");
+  });
+
+  it("does not treat an address that only starts with news as the news section", () => {
+    setup("/newsletter");
+    expect(screen.getByRole("searchbox").getAttribute("placeholder")).toBe("Search stories…");
+  });
+
   it("has an accessible label and landmark", () => {
     setup();
     expect(screen.getByRole("search")).toBeTruthy();

@@ -43,12 +43,11 @@ describe("News home", () => {
     expect(screen.getAllByRole("link", { name: "Politics" }).some((a) => a.getAttribute("href") === "/news/category/politics")).toBe(true);
   });
 
-  it("shows breaking news and a featured lead above the list", async () => {
-    api.getNewsBreaking.mockResolvedValue([card({ slug: "flash", title: "Flash flood warning", is_breaking: true })]);
+  it("shows a featured lead above the list and no breaking bar", async () => {
     api.getNewsFeatured.mockResolvedValue([card({ slug: "big", title: "The big story", is_featured: true })]);
     renderAt("/news");
-    expect(await screen.findByRole("link", { name: "Flash flood warning" })).toBeTruthy();
     expect(await screen.findByRole("link", { name: /The big story/ })).toBeTruthy();
+    expect(screen.queryByLabelText("Breaking news")).toBeNull();
   });
 
   it("says so when nothing is published and when loading fails", async () => {
@@ -80,12 +79,10 @@ describe("News list and search", () => {
     expect(api.listNewsArticles).not.toHaveBeenCalled();
   });
 
-  it("the search box sends you to the search page", async () => {
+  it("has no search box of its own (the header search covers the news)", async () => {
     renderAt("/news");
-    const box = await screen.findByLabelText("Search news", { selector: "input" });
-    fireEvent.change(box, { target: { value: "weather" } });
-    fireEvent.submit(box.closest("form"));
-    await waitFor(() => expect(api.listNewsArticles).toHaveBeenCalledWith(expect.objectContaining({ q: "weather" })));
+    await screen.findByRole("link", { name: /Council approves new bridge/ });
+    expect(screen.queryByLabelText("Search news")).toBeNull();
   });
 });
 

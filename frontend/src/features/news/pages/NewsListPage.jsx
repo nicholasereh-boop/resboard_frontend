@@ -32,7 +32,7 @@ export default function NewsListPage({ mode }) {
   return (
     <div className="container nw-page">
       <h1 className="nw-h1">{title}</h1>
-      <NewsNav initialQuery={mode === "search" ? q : ""} />
+      <NewsNav />
       {tooShort && <p className="nw-muted">Type at least two characters to search.</p>}
       {list.isLoading && <p className="nw-muted">Loading…</p>}
       {list.isError && <p className="nw-error" role="alert">Could not load the news. Please try again.</p>}
