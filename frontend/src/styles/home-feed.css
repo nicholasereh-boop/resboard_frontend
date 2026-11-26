@@ -147,3 +147,6 @@
   .hf-refresh.is-spinning .hf-spin, .hf-skeleton { animation: none; }
   .hf-card:hover, .hf-card:focus-within { transform: none; }
 }
+
+/* A small "News" label on cards that lead to a news article */
+.hf-kind { flex: 0 0 auto; margin-left: 0.35rem; padding: 0.05rem 0.45rem; border-radius: 999px; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; background: #e5484d; color: #fff; }

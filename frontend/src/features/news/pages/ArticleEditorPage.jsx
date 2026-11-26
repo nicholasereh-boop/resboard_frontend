@@ -64,11 +64,21 @@ export default function ArticleEditorPage() {
     qc.invalidateQueries({ queryKey: ["newsroom", "revisions", id] });
   };
   const say = (kind, text) => setMessage({ kind, text });
-  const body = () => ({ ...form, category: form.category || null, source: undefined, ...(isNew ? { source: Number(form.source) } : {}) });
+  // No source chosen = written by our own team: the server files it under the in-house ResourceBoard source.
+  const body = () => ({ ...form, category: form.category || null, source: undefined, ...(isNew && form.source ? { source: Number(form.source) } : {}) });
 
   const save = useMutation({
-    mutationFn: () => (isNew ? createNewsArticle(body()) : updateNewsArticle(id, body())),
-    onSuccess: (saved) => { say("ok", "Saved."); if (isNew) navigate(`/admin/news/articles/${saved.id}`, { replace: true }); else refresh(saved); },
+    mutationFn: async ({ publishNow = false } = {}) => {
+      if (!isNew) return updateNewsArticle(id, body());
+      const created = await createNewsArticle(body());
+      if (!publishNow) return created;
+      try { return await newsArticleAction(created.id, "publish"); } catch (e) { return { ...created, publishError: errorText(e) }; }
+    },
+    onSuccess: (saved) => {
+      qc.invalidateQueries({ queryKey: ["newsroom", "articles"] });
+      say(saved.publishError ? "error" : "ok", saved.publishError ? `Saved as a draft, but not published: ${saved.publishError}` : saved.status === "published" ? "Published." : "Saved.");
+      if (isNew) navigate(`/admin/news/articles/${saved.id}`, { replace: true }); else refresh(saved);
+    },
     onError: (e) => say("error", errorText(e)),
   });
   const act = useMutation({
@@ -94,11 +104,11 @@ export default function ArticleEditorPage() {
       {!isNew && <p className="nw-meta"><span className={`nw-status nw-status-${status}`}>{STATUS_LABEL[status]}</span> · {a.source.name}{a.published_at ? ` · published ${formatDate(a.published_at, true)}` : ""}{a.scheduled_for ? ` · scheduled for ${formatDate(a.scheduled_for, true)}` : ""}</p>}
       {message.text && <p className={message.kind === "error" ? "nw-error" : "nw-ok"} role={message.kind === "error" ? "alert" : "status"}>{message.text}</p>}
 
-      <form className="nw-form" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
+      <form className="nw-form" onSubmit={(e) => { e.preventDefault(); save.mutate({}); }}>
         {isNew && (
           <label>Source
-            <select required value={form.source} onChange={set("source")}>
-              <option value="">Choose the source…</option>
+            <select value={form.source} onChange={set("source")}>
+              <option value="">ResourceBoard (written by our team, no outside source)</option>
               {(sources.data?.items || []).map((s) => <option key={s.id} value={s.id}>{s.name}{s.approval_state !== "approved" ? ` (${s.approval_state})` : ""}</option>)}
             </select>
           </label>
@@ -121,6 +131,12 @@ export default function ArticleEditorPage() {
         <label className="nw-check"><input type="checkbox" checked={form.is_breaking} onChange={set("is_breaking")} /> Breaking</label>
         <label>Article text (HTML: p, h2–h4, ul, ol, li, blockquote, strong, em, a)<textarea rows={14} value={form.body} onChange={set("body")} /></label>
         <button type="submit" className="btn" disabled={save.isPending}>{save.isPending ? "Saving…" : "Save"}</button>
+        {isNew && !form.source && (
+          <>
+            {" "}<button type="button" className="btn secondary" disabled={save.isPending || !form.title.trim() || !form.body.trim()} onClick={() => save.mutate({ publishNow: true })}>Save and publish</button>
+            <p className="nw-muted">Articles you write yourself leave the public site automatically 60 days after they are published. You can restore them from the Archived tab.</p>
+          </>
+        )}
       </form>
 
       {!isNew && (
@@ -143,7 +159,7 @@ export default function ArticleEditorPage() {
               {["draft", "pending"].includes(status) && <button type="button" className="btn secondary" disabled={!a.can_publish || !localToIso(when)} onClick={() => act.mutate({ action: "schedule", extra: { scheduled_for: localToIso(when) } })}>Schedule</button>}
               {["draft", "pending"].includes(status) && <button type="button" className="btn secondary" onClick={() => act.mutate({ action: "reject", extra: { reason } })}>Reject</button>}
               {["published", "scheduled", "quarantined"].includes(status) && <button type="button" className="btn danger" onClick={() => act.mutate({ action: "withdraw", extra: { reason } })}>Withdraw</button>}
-              {["quarantined", "withdrawn"].includes(status) && <button type="button" className="btn secondary" onClick={() => act.mutate({ action: "restore" })}>Restore to review</button>}
+              {["quarantined", "withdrawn", "archived"].includes(status) && <button type="button" className="btn secondary" onClick={() => act.mutate({ action: "restore" })}>Restore to review</button>}
             </div>
             {a.quarantine_reason && <p className="nw-warn">Quarantined: {a.quarantine_reason}</p>}
             {a.review_note && <p className="nw-muted">Note: {a.review_note}</p>}

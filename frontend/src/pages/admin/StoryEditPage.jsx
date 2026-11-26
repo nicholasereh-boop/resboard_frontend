@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useBlocker, useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createStory, getStory, listCategories, patchStory, storyAction } from "../../api";
+import AdSlot from "../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../components/ads/adConfig";
 import CategoryPicker from "../../components/CategoryPicker";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import ErrorBoundary from "../../components/ErrorBoundary";
@@ -411,6 +413,9 @@ function StoryEditScreen({ id }) {
           </section>
         </aside>
       </div>
+
+      {/* ADSENSE: admin, add story page only */}
+      {isNew && <AdSlot slot={AD_SLOTS.adminStoryNew} />}
 
       {picker && <MediaPicker title="Choose cover image" onPick={(a) => setField({ cover: { id: a.id, url: a.url, alt_text: a.alt_text, width: a.width, height: a.height } })} onClose={() => setPicker(false)} />}
       {revisions && <RevisionsDrawer storyId={id} hasUnsaved={dirty} onRestored={reloadAfterRestore} onClose={() => setRevisions(false)} />}

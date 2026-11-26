@@ -24,13 +24,13 @@ export const explainBlocker = (code) => BLOCKER_TEXT[code] || String(code).repla
 
 export const STATUS_LABEL = {
   draft: "Draft", pending: "Waiting for review", scheduled: "Scheduled", published: "Published", rejected: "Rejected",
-  withdrawn: "Withdrawn", quarantined: "Quarantined",
+  withdrawn: "Withdrawn", quarantined: "Quarantined", archived: "Archived (60-day cycle)",
 };
 
 export const STATUS_TABS = [
   { value: "pending", label: "Review queue" }, { value: "draft", label: "Drafts" }, { value: "scheduled", label: "Scheduled" },
   { value: "published", label: "Published" }, { value: "quarantined", label: "Quarantined" }, { value: "rejected", label: "Rejected" },
-  { value: "withdrawn", label: "Withdrawn" }, { value: "", label: "All" },
+  { value: "withdrawn", label: "Withdrawn" }, { value: "archived", label: "Archived" }, { value: "", label: "All" },
 ];
 
 // The most useful sentence from a failed request: the server's own explanation first.

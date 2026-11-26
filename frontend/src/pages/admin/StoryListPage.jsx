@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteStory, listStories, storyAction } from "../../api";
+import AdSlot from "../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../components/ads/adConfig";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import Pagination from "../../components/Pagination";
 import StatusBadge from "../../components/StatusBadge";
@@ -145,6 +147,8 @@ export default function StoryListPage() {
         </div>
       )}
       <Pagination pagination={data?.pagination} onPage={(p) => update({ page: p > 1 ? String(p) : "" })} />
+      {/* ADSENSE: admin stories list */}
+      <AdSlot slot={AD_SLOTS.adminStories} />
 
       {toDelete && (
         <ConfirmDialog

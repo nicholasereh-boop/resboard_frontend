@@ -1,93 +1,126 @@
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useDocumentMeta } from "../../../hooks/useDocumentMeta";
-import { countNewsView, getNewsArticle, getNewsRelated } from "../api/news";
+import { useQuery } from "@tanstack/react-query";
+import AdSlot from "../../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../../components/ads/adConfig";
+import StorySideAds from "../../../components/ads/StorySideAds";
+import QueryState from "../../../components/public/QueryState";
+import ShareButtons from "../../../components/public/ShareButtons";
+import StoryExtras from "../../../components/story/StoryExtras";
+import StoryMoreFeed from "../../../components/story/StoryMoreFeed";
+import StoryRenderer from "../../../components/StoryRenderer";
+import { SITE_NAME } from "../../../config";
+import { usePublicMeta } from "../../../hooks/usePublicMeta";
+import { fmtDate } from "../../../utils/format";
+import { articleJsonLd } from "../../../utils/seo";
+import { countNewsView, getNewsArticle } from "../api/news";
 import ArticleBody from "../components/ArticleBody";
-import ArticleCard from "../components/ArticleCard";
 import NewsComments from "../components/NewsComments";
-import NewsNav from "../components/NewsNav";
 import { useNewsConfig } from "../hooks/useNewsConfig";
-import { formatDate } from "../utils/text";
+import "../../../styles/story-page.css";
 import "../news.css";
 
+// An article from before the story editor existed (imported or licensed): its pictures and videos are separate, rights-cleared assets.
 function Credit({ asset }) {
   const text = [asset.caption, asset.credit || asset.creator, asset.licence].filter(Boolean);
   return (
-    <figure className="nw-figure">
+    <figure className="story-cover">
       {asset.kind === "image" && asset.image?.url && <img src={asset.image.url} alt={asset.alt || ""} width={asset.image.width || undefined} height={asset.image.height || undefined} />}
       {asset.kind === "video" && asset.video_id && (
-        <div className="nw-video"><iframe title={asset.alt || asset.caption || "Video"} src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(asset.video_id)}`} allow="encrypted-media; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /></div>
+        <div className="yt-embed"><iframe title={asset.alt || asset.caption || "Video"} src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(asset.video_id)}`} allow="encrypted-media; picture-in-picture" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" /></div>
       )}
       {text.length > 0 && <figcaption>{text.join(" · ")}</figcaption>}
     </figure>
   );
 }
 
+function NotFound() {
+  return (
+    <div className="story-page">
+      <h1 className="story-title">Article not found</h1>
+      <p className="lede">This article does not exist or is no longer available.</p>
+      <p><Link to="/news">← Back to the news</Link></p>
+    </div>
+  );
+}
+
+function Skeleton() {
+  return (
+    <div className="story-page" aria-hidden="true">
+      <div className="skeleton line short" /><div className="skeleton title-line" /><div className="skeleton line short" /><div className="skeleton cover-block" />
+      {[0, 1, 2, 3].map((i) => <div key={i} className="skeleton line" />)}
+    </div>
+  );
+}
+
+// /news/:slug: the same page as a story (progress bar, big title, cover, reading text, share, comments, "Discover more").
 export default function NewsArticlePage() {
   const { slug } = useParams();
   const config = useNewsConfig();
-  const article = useQuery({ queryKey: ["news", "article", slug], queryFn: () => getNewsArticle(slug), retry: false });
-  const related = useQuery({ queryKey: ["news", "related", slug], queryFn: () => getNewsRelated(slug), enabled: Boolean(article.data) });
-  const a = article.data;
-  useDocumentMeta(a ? { title: a.title, description: a.standfirst || a.title, type: "article", canonical: `${window.location.origin}/news/${a.slug}`, robots: "index,follow" } : { title: "News", robots: "noindex" });
+  const query = useQuery({ queryKey: ["news", "article", slug], queryFn: () => getNewsArticle(slug), retry: false });
+  const a = query.data;
+  const origin = window.location.origin;
+
+  const jsonLd = useMemo(() => (a ? articleJsonLd({ title: a.title, excerpt: a.standfirst, cover: a.cover, author: a.author_name, published_at: a.published_at, updated_at: a.published_at }, { origin, siteName: SITE_NAME }) : undefined), [a, origin]);
+  usePublicMeta({ title: a?.title, description: a?.standfirst || a?.title, path: a ? `/news/${a.slug}` : undefined, image: a?.cover?.url, type: "article", robots: a ? "index,follow" : "noindex,follow", jsonLd });
 
   // Some licences require a page-view counter: count one view per opened article, never block the page on it.
   const counted = a?.counter_required;
-  useEffect(() => {
-    if (counted) countNewsView(slug).catch(() => {});
-  }, [counted, slug]);
+  useEffect(() => { if (counted) countNewsView(slug).catch(() => {}); }, [counted, slug]);
+  const sentinel = useRef(null);
 
-  if (article.isLoading) return <div className="nw-page"><p className="nw-muted">Loading the article…</p></div>;
-  if (article.isError || !a) {
-    return (
-      <div className="nw-page">
-        <h1 className="nw-h1">Article not found</h1>
-        <p className="nw-lede">This article does not exist or is no longer available.</p>
-        <p><Link to="/news">← Back to the news</Link></p>
-      </div>
-    );
-  }
-  const lead = a.assets[0];
-  const otherAssets = a.assets.slice(1);
+  const inHouse = a?.article_type === "original";
+  const assets = a?.assets || [];
+  const useAssets = a && !a.cover && assets.length > 0;
   return (
-    <div className="nw-page">
-      <NewsNav />
-      <article className="nw-article" lang={a.language || undefined}>
-        <header>
-          <p className="nw-kicker">
-            {a.is_breaking && <span className="nw-breaking">Breaking</span>}
-            {a.category && <Link to={`/news/category/${a.category.slug}`}>{a.category.name}</Link>}
-          </p>
-          <h1 className="nw-h1">{a.title}</h1>
-          {a.standfirst && <p className="nw-standfirst">{a.standfirst}</p>}
-          <p className="nw-byline">
-            {a.author_name && <span>By {a.author_name} · </span>}
-            <time dateTime={a.published_at}>{formatDate(a.published_at, true)}</time>
-            {a.source_published_at && <span> · First published {formatDate(a.source_published_at)}</span>}
-          </p>
-        </header>
-        {lead && <Credit asset={lead} />}
-        <ArticleBody html={a.body} />
-        {otherAssets.map((x) => <Credit key={x.id} asset={x} />)}
-        <aside className="nw-attribution" aria-label="Source and licence">
-          <p>{a.attribution}</p>
-          {a.original_url && <p><a href={a.original_url} rel="noopener noreferrer nofollow" target="_blank">Read the original article</a></p>}
-          {a.licence && <p className="nw-muted">Licence: {a.licence}</p>}
-          <p className="nw-muted">
-            Published by {a.source.name}.{" "}
-            <Link to="/news/report">Report a copyright or accuracy problem</Link>
-            {config.copyright_contact && <> or write to <a href={`mailto:${config.copyright_contact}`}>{config.copyright_contact}</a></>}.
-          </p>
-        </aside>
-      </article>
-      {config.comments && <NewsComments slug={a.slug} />}
-      {(related.data || []).length > 0 && (
-        <section aria-label="Related stories">
-          <h2 className="nw-h2">Related stories</h2>
-          <ul className="nw-list">{related.data.map((r) => <ArticleCard key={r.slug} article={r} />)}</ul>
-        </section>
-      )}
+    <div className="container">
+      <StoryExtras />
+      <div className="sp-layout">
+        <div className="sp-main">
+          <QueryState query={query} skeleton={<Skeleton />} notFound={<NotFound />}>
+            {(art) => (
+              <article className="story-page" lang={art.language || undefined}>
+                <span ref={sentinel} className="read-sentinel" aria-hidden="true" />
+                <p className="kicker">
+                  {art.is_breaking && <span className="nw-chip-breaking">Breaking</span>}
+                  <Link to="/news">News</Link>
+                  {art.category && <> · <Link to={`/news/category/${art.category.slug}`}>{art.category.name}</Link></>}
+                </p>
+                <h1 className="story-title">{art.title}</h1>
+                <p className="byline muted">
+                  {[art.author_name && `By ${art.author_name}`, fmtDate(art.published_at), art.reading_minutes ? `${art.reading_minutes} min read` : null].filter(Boolean).join(" · ")}
+                </p>
+                {art.standfirst && <p className="lede">{art.standfirst}</p>}
+                {art.cover?.url && (
+                  <figure className="story-cover">
+                    <img src={art.cover.url} alt={art.cover.alt_text || ""} width={art.cover.width || undefined} height={art.cover.height || undefined} fetchpriority="high" />
+                  </figure>
+                )}
+                {useAssets && <Credit asset={assets[0]} />}
+                {art.content_json ? <StoryRenderer content={art.content_json} /> : <div className="prose"><ArticleBody html={art.body} /></div>}
+                {useAssets && assets.slice(1).map((x) => <Credit key={x.id} asset={x} />)}
+                <AdSlot slot={AD_SLOTS.storyInline} />
+                {!inHouse && (
+                  <aside className="sp-licence" aria-label="Source and licence">
+                    <p>{art.attribution}</p>
+                    {art.original_url && <p><a href={art.original_url} rel="noopener noreferrer nofollow" target="_blank">Read the original article</a></p>}
+                    {art.licence && <p className="muted">Licence: {art.licence}</p>}
+                  </aside>
+                )}
+                <ShareButtons url={`${origin}/news/${art.slug}`} title={art.title} />
+                <p className="sp-newsline">
+                  Published by {art.source.name}. <Link to="/news/report">Report a copyright or accuracy problem</Link>
+                  {config.copyright_contact && <> or write to <a href={`mailto:${config.copyright_contact}`}>{config.copyright_contact}</a></>}.
+                </p>
+              </article>
+            )}
+          </QueryState>
+          {a && config.comments && <NewsComments slug={a.slug} />}
+        </div>
+        {a && <StorySideAds />}
+      </div>
+      {a && <AdSlot slot={AD_SLOTS.storyBottom} />}
+      {a && <StoryMoreFeed excludeId={`news-${a.slug}`} />}
     </div>
   );
 }

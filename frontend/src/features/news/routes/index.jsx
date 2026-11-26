@@ -2,7 +2,7 @@
 // (features.js, VITE_FEATURE_NEWS), and then every /news and /admin/news address gets the normal 404.
 import { FEATURE_NEWS } from "../../../features.js";
 import CommentsPage from "../pages/CommentsPage";
-import ArticleEditorPage from "../pages/ArticleEditorPage";
+import NewsEditRoute from "../pages/NewsEditRoute";
 import ImportPage from "../pages/ImportPage";
 import NewsArticlePage from "../pages/NewsArticlePage";
 import NewsHomePage from "../pages/NewsHomePage";
@@ -28,8 +28,8 @@ export const buildAdminNewsRoutes = () => [
   { path: "news/sources", element: <SourcesPage /> },
   { path: "news/takedowns", element: <TakedownsPage /> },
   { path: "news/comments", element: <CommentsPage /> },
-  { path: "news/articles/new", element: <ArticleEditorPage /> },
-  { path: "news/articles/:id", element: <ArticleEditorPage /> },
+  { path: "news/articles/new", element: <NewsEditRoute /> },
+  { path: "news/articles/:id", element: <NewsEditRoute /> },
 ];
 
 export const publicNewsRoutes = FEATURE_NEWS ? buildPublicNewsRoutes() : [];

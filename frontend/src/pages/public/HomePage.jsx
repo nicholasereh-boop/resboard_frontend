@@ -6,6 +6,8 @@ import QueryState from "../../components/public/QueryState";
 import { SITE_DESCRIPTION, SITE_NAME } from "../../config";
 import { FEATURES } from "../../features";
 import { usePublicMeta } from "../../hooks/usePublicMeta";
+import { useNewsFeedItems } from "../../features/news/hooks/useNewsFeedItems";
+import { mergeNewest } from "../../features/news/utils/feed";
 import "../../styles/home-feed.css";
 
 // The home page is a dark, news-feed style page: one big card that changes from story to story, two cards beside it and a
@@ -28,6 +30,7 @@ export default function HomePage() {
     initialPageParam: 1,
     getNextPageParam: (last) => (last.pagination?.has_next ? last.pagination.page + 1 : undefined),
   });
+  const news = useNewsFeedItems(24); // in-house news shown in the same cards, newest first (empty when News is off)
   const categories = useQuery({ queryKey: ["public", "categories"], queryFn: getCategories });
   // Products are a bonus: if the marketplace is off or cannot answer, the home page simply shows no product box.
   const products = useQuery({
@@ -44,12 +47,12 @@ export default function HomePage() {
       <QueryState
         query={stories}
         skeleton={<FeedSkeleton />}
-        isEmpty={(d) => !Array.isArray(d?.pages?.[0]?.items) || d.pages[0].items.length === 0}
+        isEmpty={(d) => (!Array.isArray(d?.pages?.[0]?.items) || d.pages[0].items.length === 0) && news.length === 0}
         empty={<div className="hf"><div className="empty">No stories have been published yet. Please check back soon.</div></div>}
       >
         {(d) => (
           <HomeFeed
-            stories={poolOf(d.pages)}
+            stories={mergeNewest(poolOf(d.pages), news)}
             products={products.data?.items || []}
             categories={categories.data || []}
             hasMore={Boolean(stories.hasNextPage)}

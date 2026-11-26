@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import AdSlot from "../../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../../components/ads/adConfig";
 import Pagination from "../../../components/Pagination";
 import { listNewsroom } from "../api/newsroom";
 import MonitoringPanel from "../components/MonitoringPanel";
@@ -51,6 +53,8 @@ export default function NewsroomPage() {
         </table>
       )}
       {list.data && <Pagination pagination={list.data.pagination} onPage={setPage} />}
+      {/* ADSENSE: admin newsroom */}
+      <AdSlot slot={AD_SLOTS.adminNews} />
     </div>
   );
 }

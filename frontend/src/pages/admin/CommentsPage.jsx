@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminListComments, dismissCommentReports, getCommentSettings, listCommentReports, setCommentSettings, setCommentStatus } from "../../api";
+import AdSlot from "../../components/ads/AdSlot";
+import { AD_SLOTS } from "../../components/ads/adConfig";
 import Modal from "../../components/Modal";
 import Pagination from "../../components/Pagination";
 import { fmtDateTime } from "../../utils/format";
@@ -182,6 +184,8 @@ export default function CommentsPage() {
         </div>
       )}
       <Pagination pagination={data?.pagination} onPage={(p) => update({ page: p > 1 ? String(p) : "" })} />
+      {/* ADSENSE: admin comments */}
+      <AdSlot slot={AD_SLOTS.adminComments} />
 
       {reportsFor && (
         <ReportsDrawer

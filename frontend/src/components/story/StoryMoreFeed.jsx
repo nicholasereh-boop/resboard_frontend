@@ -7,6 +7,8 @@ import { SITE_NAME } from "../../config";
 import { FEATURES } from "../../features";
 import { buildStream, takeCircular, timeAgo } from "../../utils/homeFeed";
 import { formatPrice } from "../../utils/money";
+import { useNewsFeedItems } from "../../features/news/hooks/useNewsFeedItems";
+import { hrefOf, mergeNewest } from "../../features/news/utils/feed";
 
 // "Discover more": one fixed page of up to 32 stories (it does not grow as you scroll), with a Refresh button for the next set
 // and marketplace products mixed in. Every story is a wide LIST card: picture on the left, text on the right.
@@ -30,12 +32,12 @@ function StoryRow({ story }) {
   const ago = timeAgo(story.published_at);
   return (
     <li className="sf-card">
-      <Link to={`/stories/${story.slug}`}>
+      <Link to={hrefOf(story)}>
         <span className="sf-thumb">
           {story.cover?.url ? <img src={story.cover.url} alt="" loading="lazy" draggable="false" /> : <span className="sf-noimg" aria-hidden="true">{story.title.slice(0, 1).toUpperCase()}</span>}
         </span>
         <span className="sf-text">
-          <span className="sf-meta"><span className="sf-dot" aria-hidden="true" />{name}{ago ? ` · ${ago}` : ""}</span>
+          <span className="sf-meta"><span className="sf-dot" aria-hidden="true" />{name}{ago ? ` · ${ago}` : ""}{story.kind === "news" ? <span className="sf-kind">News</span> : null}</span>
           <span className="sf-title">{story.title}</span>
           {story.excerpt ? <span className="sf-excerpt">{story.excerpt}</span> : null}
           {story.reading_minutes ? <span className="sf-foot">{story.reading_minutes} min read</span> : null}
@@ -70,6 +72,7 @@ export default function StoryMoreFeed({ excludeId }) {
     initialPageParam: 1,
     getNextPageParam: (last) => (last.pagination?.has_next ? last.pagination.page + 1 : undefined),
   });
+  const news = useNewsFeedItems(24); // news articles are part of the same feed
   const categories = useQuery({ queryKey: ["public", "categories"], queryFn: getCategories });
   const products = useQuery({
     queryKey: ["public", "home-products"],
@@ -85,7 +88,7 @@ export default function StoryMoreFeed({ excludeId }) {
   const timer = useRef(null);
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  const pool = poolOf(stories.data?.pages || [], excludeId);
+  const pool = mergeNewest(poolOf(stories.data?.pages || [], excludeId), news).filter((s) => s.id !== excludeId);
   const hasMore = Boolean(stories.hasNextPage);
   const loadingMore = stories.isFetchingNextPage;
   const fetchNext = stories.fetchNextPage;

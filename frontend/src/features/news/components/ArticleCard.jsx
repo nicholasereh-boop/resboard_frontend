@@ -1,20 +1,25 @@
 import { Link } from "react-router-dom";
-import { formatDate } from "../utils/text";
+import { SITE_NAME } from "../../../config";
+import { timeAgo } from "../../../utils/homeFeed";
 
-export default function ArticleCard({ article, lead = false }) {
-  const img = article.lead_image;
+// A news card, drawn exactly like the story cards in "Discover more" (styles/story-page.css, .sf-*).
+export default function ArticleCard({ article }) {
+  const name = article.author || article.source?.name || SITE_NAME;
+  const ago = timeAgo(article.published_at);
+  const cover = article.cover || article.lead_image;
   return (
-    <li className={lead ? "nw-card nw-card-lead" : "nw-card"}>
-      {img?.url && <Link to={`/news/${article.slug}`} tabIndex={-1} aria-hidden="true"><img src={img.url} alt="" loading="lazy" className="nw-card-img" /></Link>}
-      <div className="nw-card-text">
-        <p className="nw-kicker">
-          {article.is_breaking && <span className="nw-breaking">Breaking</span>}
-          {article.category && <Link to={`/news/category/${article.category.slug}`}>{article.category.name}</Link>}
-        </p>
-        <h3 className="nw-card-title"><Link to={`/news/${article.slug}`}>{article.title}</Link></h3>
-        {article.standfirst && <p className="nw-card-sub">{article.standfirst}</p>}
-        <p className="nw-meta">{article.source?.name}{article.published_at ? ` · ${formatDate(article.published_at)}` : ""}</p>
-      </div>
+    <li className="sf-card">
+      <Link to={`/news/${article.slug}`}>
+        <span className="sf-thumb">
+          {cover?.url ? <img src={cover.url} alt="" loading="lazy" draggable="false" /> : <span className="sf-noimg" aria-hidden="true">{article.title.slice(0, 1).toUpperCase()}</span>}
+        </span>
+        <span className="sf-text">
+          <span className="sf-meta"><span className="sf-dot" aria-hidden="true" />{name}{ago ? ` · ${ago}` : ""}{article.is_breaking ? <span className="sf-kind">Breaking</span> : <span className="sf-kind">News</span>}</span>
+          <span className="sf-title">{article.title}</span>
+          {(article.excerpt || article.standfirst) ? <span className="sf-excerpt">{article.excerpt || article.standfirst}</span> : null}
+          <span className="sf-foot">{[article.category?.name, article.reading_minutes ? `${article.reading_minutes} min read` : null].filter(Boolean).join(" · ")}</span>
+        </span>
+      </Link>
     </li>
   );
 }

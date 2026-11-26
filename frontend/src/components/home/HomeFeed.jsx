@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { SITE_NAME } from "../../config";
 import { STORIES_PER_REFRESH, STREAM_STORIES, buildBatch, buildStream, takeCircular, timeAgo } from "../../utils/homeFeed";
 import { formatPrice } from "../../utils/money";
+import { hrefOf } from "../../features/news/utils/feed";
 // ADSENSE: imports
 import AdSlot from "../ads/AdSlot";
 import { AD_SLOTS } from "../ads/adConfig";
@@ -21,12 +22,13 @@ function Source({ story }) {
       <span className="hf-badge" aria-hidden="true">{name.slice(0, 1).toUpperCase()}</span>
       <span className="hf-source-name">{name}</span>
       {ago ? <span className="hf-source-time">· {ago}</span> : null}
+      {story.kind === "news" ? <span className="hf-kind">News</span> : null}
     </span>
   );
 }
 
 // ---------- the big card: changes from one story to the next, with arrows and dots ----------
-function HeroCarousel({ items }) {
+export function HeroCarousel({ items }) {
   const count = items.length;
   const [index, setIndex] = useState(0);
   const [userPaused, setUserPaused] = useState(reducedMotion);
@@ -70,7 +72,7 @@ function HeroCarousel({ items }) {
         {items.map((s, i) => (
           <Link
             key={s.id}
-            to={`/stories/${s.slug}`}
+            to={hrefOf(s)}
             className={`hf-slide${i === active ? " is-active" : ""}`}
             tabIndex={i === active ? undefined : -1}
             aria-hidden={i === active ? undefined : "true"}
@@ -103,10 +105,10 @@ function HeroCarousel({ items }) {
 }
 
 // ---------- a normal story card ----------
-function StoryTile({ story }) {
+export function StoryTile({ story }) {
   return (
     <li className="hf-card">
-      <Link to={`/stories/${story.slug}`}>
+      <Link to={hrefOf(story)}>
         <span className="hf-card-media">
           {story.cover?.url ? <img src={story.cover.url} alt="" loading="lazy" draggable="false" /> : <span className="hf-noimg" aria-hidden="true" />}
         </span>
